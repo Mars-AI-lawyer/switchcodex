@@ -21,6 +21,7 @@ cp "$BUILD_DIR/$APP_NAME" "$BUNDLE/Contents/MacOS/$APP_NAME"
 cp Info.plist "$BUNDLE/Contents/Info.plist"
 cp Assets/models.json "$BUNDLE/Contents/Resources/models.json"
 cp Assets/AppIcon.icns "$BUNDLE/Contents/Resources/AppIcon.icns"
+cp Assets/menu-gpt.svg Assets/menu-deepseek.svg Assets/menu-bigmodel.svg "$BUNDLE/Contents/Resources/"
 
 echo "[3/4] ad-hoc 签名..."
 codesign --force -s - "$BUNDLE"

@@ -156,6 +156,30 @@ func saveSettings(_ s: Settings) throws {
     try fm.setAttributes([.posixPermissions: 0o600], ofItemAtPath: settingsPath.path)
 }
 
+// MARK: - 菜单栏品牌图标（官方图形的单色简化版，模板图自动适配深浅色外观）
+//
+// 图形来源：
+// - GPT：OpenAI 官方标志（simple-icons，CC0），外加圆角方框——
+//   裸花形与 ChatGPT 官方客户端的菜单栏图标完全相同，加框避免误解
+// - DeepSeek：官方鲸鱼轮廓（Wikimedia Commons "Deepseek-logo-icon.svg"，CC0）
+// - 智谱：Z.ai（智谱新品牌）官方 Z 字标（Wikimedia Commons "Z.ai (company logo).svg"，公有领域）
+// SVG 由 NSImage 原生矢量渲染，任意尺寸都清晰。
+
+/// 菜单栏 / 菜单项用的模板图标；限定高度并限制最大宽度，保持纵横比
+func menuGlyphImage(providerID: String, height: CGFloat = 16, maxWidth: CGFloat = 22) -> NSImage? {
+    guard let url = bundledResourceURL("menu-\(providerID).svg"),
+          let img = NSImage(contentsOf: url) else { return nil }
+    img.isTemplate = true
+    var w = height * img.size.width / img.size.height
+    var h = height
+    if w > maxWidth {
+        w = maxWidth
+        h = maxWidth * img.size.height / img.size.width
+    }
+    img.size = NSSize(width: w, height: h)
+    return img
+}
+
 // MARK: - 错误
 
 enum AppError: Error, CustomStringConvertible {
@@ -205,17 +229,22 @@ func snapshotPath(for providerID: String) -> URL {
     providerID == bigmodelProviderID ? bigmodelSnapshotPath : deepseekSnapshotPath
 }
 
-func bundledModelsJSONURL() -> URL? {
+/// 在 Bundle 资源目录 / bundle 根 / 可执行文件同目录查找内置资源
+private func bundledResourceURL(_ name: String) -> URL? {
     var candidates: [URL] = []
     if let r = Bundle.main.resourceURL { candidates.append(r) }
     candidates.append(Bundle.main.bundleURL)
     let exeDir = URL(fileURLWithPath: CommandLine.arguments[0]).deletingLastPathComponent()
     candidates.append(exeDir)
     for dir in candidates {
-        let src = dir.appendingPathComponent("models.json")
+        let src = dir.appendingPathComponent(name)
         if fm.fileExists(atPath: src.path) { return src }
     }
     return nil
+}
+
+func bundledModelsJSONURL() -> URL? {
+    bundledResourceURL("models.json")
 }
 
 private func catalogSlugs(_ url: URL?) -> Set<String>? {
@@ -779,18 +808,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
 
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        if let button = statusItem.button {
-            if let icon = NSImage(
-                systemSymbolName: "arrow.triangle.2.circlepath",
-                accessibilityDescription: "切换模型"
-            )?.withSymbolConfiguration(
-                NSImage.SymbolConfiguration(pointSize: 13, weight: .medium)
-            ) {
-                icon.isTemplate = true
-                button.image = icon
-                button.imagePosition = .imageLeading
-            }
-        }
         statusMenu.delegate = self
         statusItem.menu = statusMenu
 
@@ -848,26 +865,45 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     func refreshUI() {
         guard let button = statusItem?.button else { return }
         let token = currentToken()
-        let title: String
-        let color: NSColor
         let tooltip: String
+        let glyphID: String
         if token == "gpt" {
-            title = "GPT"
-            color = .systemGreen
+            glyphID = "gpt"
             tooltip = "Codex 当前：GPT。点击选择模型"
         } else if let row = targetByToken(token) {
-            title = row.statusTitle
-            color = row.color
+            glyphID = row.providerID
             tooltip = "Codex 当前：\(row.title)。点击选择模型"
         } else {
-            title = "???"
-            color = .systemGray
+            glyphID = ""
             tooltip = "Codex 当前配置无法识别，点击选择模型"
         }
-        button.attributedTitle = NSAttributedString(string: title, attributes: [
-            .foregroundColor: color,
-            .font: NSFont.systemFont(ofSize: 13, weight: .semibold),
-        ])
+
+        if let image = menuGlyphImage(providerID: glyphID) {
+            // 官方品牌图标（单色模板图，随菜单栏深浅色自动变化）
+            image.accessibilityDescription = tooltip
+            button.image = image
+            button.imagePosition = .imageOnly
+            button.attributedTitle = NSAttributedString()
+        } else {
+            // 图标资产缺失时的文字兜底
+            let title: String
+            let color: NSColor
+            if token == "gpt" {
+                title = "GPT"
+                color = .systemGreen
+            } else if let row = targetByToken(token) {
+                title = row.statusTitle
+                color = row.color
+            } else {
+                title = "???"
+                color = .systemGray
+            }
+            button.image = nil
+            button.attributedTitle = NSAttributedString(string: title, attributes: [
+                .foregroundColor: color,
+                .font: NSFont.systemFont(ofSize: 13, weight: .semibold),
+            ])
+        }
         button.toolTip = tooltip
     }
 
@@ -949,6 +985,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         item.target = self
         item.representedObject = represented
         item.state = isOn ? .on : .off
+        let providerID = represented == "gpt" ? "gpt" : targetByToken(represented)?.providerID
+        if let p = providerID { item.image = menuGlyphImage(providerID: p, height: 14, maxWidth: 19) }
         return item
     }
 

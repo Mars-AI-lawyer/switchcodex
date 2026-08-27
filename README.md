@@ -6,7 +6,7 @@
 
 [![macOS](https://img.shields.io/badge/macOS-13%2B-000000?logo=apple&logoColor=white)](https://www.apple.com/macos/)
 [![Swift](https://img.shields.io/badge/Swift-5.8%2B-F05138?logo=swift&logoColor=white)](https://www.swift.org/)
-[![Version](https://img.shields.io/badge/version-1.0.2-2F81F7)](Info.plist)
+[![Version](https://img.shields.io/badge/version-1.0.3-2F81F7)](Info.plist)
 [![License](https://img.shields.io/badge/license-MIT-3DA639)](LICENSE)
 [![Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](#项目结构)
 
@@ -17,7 +17,7 @@
 ## 主要功能
 
 - 点击菜单栏图标，在 GPT / DeepSeek 三档 / 智谱 GLM 两档之间切换。
-- 菜单栏显示当前模型：`GPT`、`DS·F`、`DS·P`、`DS·V`、`GLM·F` 或 `GLM·5`。
+- 菜单栏按当前提供商显示官方图标的单色简化版：GPT 用 OpenAI 花形外加圆角框（与官方 ChatGPT 客户端图标区分），DeepSeek 用鲸鱼轮廓，智谱用 Z.ai 的 Z 字标，自动适配深浅色菜单栏；具体模型悬停即可查看。
 - 「思考程度」菜单可调节 `model_reasoning_effort`（low / high / max），两家模型通用。
 - 每家提供商使用独立的 API Key，第一次切换时弹窗引导输入。
 - 切换过程不弹出终端，也不显示 Dock 图标。
@@ -131,6 +131,9 @@ switchcodex/
 ├── Sources/main.swift
 ├── Assets/models.json
 ├── Assets/AppIcon.icns
+├── Assets/menu-gpt.svg          # 菜单栏 GPT（OpenAI）图标
+├── Assets/menu-deepseek.svg     # 菜单栏 DeepSeek 鲸鱼图标
+├── Assets/menu-bigmodel.svg     # 菜单栏智谱 Z.ai 图标
 ├── Info.plist
 ├── build.sh
 ├── LICENSE
