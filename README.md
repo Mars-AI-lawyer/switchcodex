@@ -28,17 +28,13 @@
 
 ## 使用方法
 
-### 1. 编译并安装
+### 1. 安装
 
-```bash
-./build.sh
-```
+前往 [Releases](https://github.com/Mars-AI-lawyer/switchcodex/releases/latest) 下载最新安装包，解压后将 `SwitchCodex.app` 拖入「应用程序」文件夹，双击启动即可。
 
-应用会安装到：
+首次打开如被系统拦截，右键 → 打开，或在系统设置 → 隐私与安全性中允许。
 
-```text
-/Applications/SwitchCodex.app
-```
+> 想自己魔改代码的再 clone 本仓库，执行 `./build.sh` 即可编译并安装到 `/Applications/SwitchCodex.app`。
 
 ### 2. 第一次启动
 
