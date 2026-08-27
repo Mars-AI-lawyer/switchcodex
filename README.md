@@ -6,7 +6,7 @@
 
 [![macOS](https://img.shields.io/badge/macOS-13%2B-000000?logo=apple&logoColor=white)](https://www.apple.com/macos/)
 [![Swift](https://img.shields.io/badge/Swift-5.8%2B-F05138?logo=swift&logoColor=white)](https://www.swift.org/)
-[![Version](https://img.shields.io/badge/version-1.0.3-2F81F7)](Info.plist)
+[![Version](https://img.shields.io/badge/version-1.1-2F81F7)](Info.plist)
 [![License](https://img.shields.io/badge/license-MIT-3DA639)](LICENSE)
 [![Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](#项目结构)
 
